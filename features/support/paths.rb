@@ -15,6 +15,8 @@ module NavigationHelpers
 
     when /^the home\s?page$/
       '/movies'
+    when /^the RottenPotatoes home page$/
+      '/movies'
     when /^the edit page for "Alien"$/
       '/movies/3/edit'
     when /^the details page for "Star Wars"$/

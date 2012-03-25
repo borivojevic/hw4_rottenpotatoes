@@ -28,4 +28,45 @@ describe MoviesController do
       end
     end
   end
+  describe 'create new movie' do
+    before :each do
+      @params = {:title => "Star Wars", :rating => "PG", :director => "George Lucas", :release_date => "1977-05-25"}
+      Movie.stub!(:create!).and_return(@movie = movies(:star_wars_movie))
+    end
+    it 'should call model action to create new movie' do
+      Movie.should_receive(:create!).with("title" => "Star Wars", "rating" => "PG", "director" => "George Lucas", "release_date" => "1977-05-25").and_return(@movie)
+      post :create, :movie => @params
+    end
+    it 'should set flash var' do
+      post :create, :movie => @params
+      flash[:notice].should_not be_nil
+    end
+    it 'should redirect to movies path' do
+      post :create, :movie => @params
+      response.should redirect_to(movies_path)
+    end
+  end
+  describe 'delete movie' do
+    before :each do
+      @movie = movies(:star_wars_movie)
+      Movie.stub!(:find).and_return(@movie = movies(:star_wars_movie))
+      Movie.stub!(:destroy)
+    end
+    it 'should find movie by id' do
+      Movie.should_receive(:find).with("1").and_return(@movie)
+      delete :destroy, :id => 1
+    end
+    it 'should call delete movie object' do
+      @movie.should_receive(:destroy)
+      delete :destroy, :id => 1
+    end
+    it 'set flash var' do
+      delete :destroy, :id => 1
+      flash[:notice].should_not be_nil
+    end
+    it 'should rediect to movies path' do
+      delete :destroy, :id => 1
+      response.should redirect_to(movies_path)
+    end
+  end
 end
