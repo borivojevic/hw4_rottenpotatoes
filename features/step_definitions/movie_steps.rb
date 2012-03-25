@@ -20,7 +20,7 @@ end
 #   on the same page
 
 Then /I should see "(.*)" before "(.*)"/ do |e1, e2|
-  page.body.should =~ /#{e1}.*#{e2}/
+  page.body.should =~ /#{e1}.*#{e2}/m
 end
 
 # Make it easier to express checking or unchecking several boxes at once

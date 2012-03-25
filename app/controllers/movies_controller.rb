@@ -7,27 +7,40 @@ class MoviesController < ApplicationController
   end
 
   def index
-    sort = params[:sort] || session[:sort]
-    case sort
-    when 'title'
-      ordering,@title_header = {:order => :title}, 'hilite'
-    when 'release_date'
-      ordering,@date_header = {:order => :release_date}, 'hilite'
-    end
-    @all_ratings = Movie.all_ratings
-    @selected_ratings = params[:ratings] || session[:ratings] || {}
-
-    if params[:sort] != session[:sort]
-      session[:sort] = sort
-      redirect_to :sort => sort, :ratings => @selected_ratings and return
+    # preserve sort and rating filter options
+    if params.has_key?(:ratings)
+      session[:ratings] = params[:ratings]
     end
 
-    if params[:ratings] != session[:ratings] and @selected_ratings != {}
-      session[:sort] = sort
-      session[:ratings] = @selected_ratings
-      redirect_to :sort => sort, :ratings => @selected_ratings and return
+    if params.has_key?(:sort)
+      session[:sort] = params[:sort]
     end
-    @movies = Movie.find_all_by_rating(@selected_ratings.keys, ordering)
+
+    if !params.has_key?(:ratings) && !params.has_key?(:sort)
+      p = Hash.new
+      if session.has_key?(:ratings)
+        p[:ratings] = session[:ratings]
+      end
+      if session.has_key?(:sort)
+        p[:sort] = session[:sort]
+      end
+      if !p.empty?
+        redirect_to movies_path(p)
+      end
+    end
+    @all_ratings = []
+    Movie.all_ratings.each do |rating|
+      checked = false;
+      unless params[:ratings].nil?
+        checked = params[:ratings].include?(rating)
+      end
+      @all_ratings << [rating, checked]
+    end
+    @sort_by = params[:sort]
+    @movies = Movie.order(@sort_by)
+    unless params[:ratings].nil?
+      @movies = @movies.where(:rating => params[:ratings].keys)
+    end
   end
 
   def new
